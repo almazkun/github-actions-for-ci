@@ -5,10 +5,7 @@ name: Node CI
 on: [push]
 
 jobs:
-      - uses: actions/upload-artifact@master
-        with:
-          name: webpack artifacts
-          path: public/
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +13,12 @@ jobs:
         run: |
           npm install
           npm run build
+      - uses: actions/upload-artifact@master
+        with:
+          name: webpack artifacts
+          path: public/
   test:
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,6 +26,10 @@ jobs:
         node-version: [8.x, 10.x]
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/download-artifact@master
+      with: 
+        name: webpack artifacts
+        path: public
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
